@@ -1,0 +1,30 @@
+import { chromium } from "playwright-core";
+const [pdf, shot] = process.argv.slice(2);
+const browser = await chromium.launch({ channel: "msedge", headless: true });
+const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } });
+const page = await ctx.newPage();
+const log = (...a) => console.log(...a);
+let answer = true;
+page.on("dialog", (d) => { log("[dialog]", JSON.stringify(d.message())); answer ? d.accept() : d.dismiss(); });
+page.on("pageerror", (e) => log("[pageerror]", e.message));
+const popups = [];
+ctx.on("page", (p) => { popups.push(p); p.close().catch(() => {}); });
+page.setDefaultTimeout(8000);
+await page.goto("http://localhost:1420/");
+const [fc] = await Promise.all([page.waitForEvent("filechooser"), page.click("text=Open PDF")]);
+await fc.setFiles(pdf);
+await page.waitForSelector(".page[data-page-number='1'] .annotationLayer a");
+const links = page.locator(".page[data-page-number='1'] .annotationLayer a");
+log("links rendered:", await links.count(), await links.evaluateAll((as) => as.map((a) => a.getAttribute("href"))));
+const settle = () => page.waitForTimeout(600);
+const state = async (label) => log(label, "| app url:", page.url(), "| popups:", popups.map((p) => p.url()), "| page:", await page.locator(".thumb.current .thumb-num").first().textContent({ timeout: 2000 }).catch(() => "?"));
+
+answer = false; await links.nth(0).click(); await settle(); await state("web link, cancelled ->");
+answer = true; await links.nth(0).click(); await settle(); await state("web link, accepted ->");
+await links.nth(0).click({ button: "middle" }); await settle(); await state("web link, middle-click ->");
+answer = false; await links.nth(1).click(); await settle(); await state("mail link, cancelled ->");
+const scriptHref = await links.evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+if (await links.count() > 3) { await links.nth(2).click(); await settle(); await state("script link ->"); }
+await links.last().click(); await settle(); await state("internal link ->");
+await page.screenshot({ path: shot });
+await browser.close();
