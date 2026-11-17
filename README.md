@@ -31,9 +31,11 @@ Press `?` in the app to see all keyboard shortcuts.
 
 ## Install
 
-1. Download `Plume PDF_x.y.z_x64-setup.exe` from the [Releases](../../releases) page
+1. Download `Plume-PDF_x.y.z_x64-setup.exe` from the [latest release](../../releases/latest)
    (or build it yourself, see below).
 2. Run it. It installs just for you, so you don't need administrator rights.
+   The installer isn't code-signed yet, so Windows may show a blue "Windows protected your PC" screen:
+   click **More info** → **Run anyway**.
 
 Requires Windows 10 or 11 (64-bit).
 
