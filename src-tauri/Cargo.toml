@@ -1,6 +1,7 @@
 [package]
 name = "plume-pdf"
 version = "0.1.0"
+license = "MIT"
 description = "Plume PDF - a simple PDF reader and editor"
 edition = "2021"
 

@@ -101,3 +101,7 @@ src/
 src-tauri/           Rust shell: native file read/write, startup file, file association,
                      navigation and pop-up blocking (src/lib.rs)
 ```
+
+## License
+
+[MIT](LICENSE): free to use, copy, modify and share, including commercially.
